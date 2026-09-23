@@ -10,6 +10,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const toolRoot = path.resolve(here, '..');
 const testRoot = path.join(toolRoot, 'runtime');
 const vendorPackage = path.resolve(toolRoot, '..', 'vendor', 'video-batch-download', 'package.json');
+const transcriptionMarker = path.resolve(toolRoot, '..', 'vendor', 'douyin-downloader-1', '.venv', 'Scripts', 'python.exe');
 process.env.PLAYWRIGHT_BROWSERS_PATH ||= path.join(testRoot, 'playwright');
 const require = createRequire(vendorPackage);
 const { chromium } = require('playwright');
@@ -25,9 +26,13 @@ test('separate screens complete both entry routes and the manual knowledge gates
   const runtime = await fs.mkdtemp(path.join(testRoot, 'ui-browser-test-'));
   let browser;
   let server;
+  let createdTranscriptionMarker = false;
   t.after(async () => {
     await browser?.close();
     if (server) await new Promise(resolve => server.close(resolve));
+    if (createdTranscriptionMarker) {
+      await fs.rm(path.resolve(transcriptionMarker, '..', '..'), { recursive: true, force: true });
+    }
     if (!path.resolve(runtime).startsWith(`${testRoot}${path.sep}`)) throw new Error('test cleanup escaped the workspace');
     await fs.rm(runtime, { recursive: true, force: true });
   });
@@ -39,6 +44,13 @@ test('separate screens complete both entry routes and the manual knowledge gates
   await fs.mkdir(path.join(runtime, 'bin', 'llama-cpp'), { recursive: true });
   await fs.writeFile(path.join(runtime, 'models', 'knowledge', 'Qwen3-4B-Q4_K_M.gguf'), 'test marker');
   await fs.writeFile(path.join(runtime, 'bin', 'llama-cpp', 'llama-server.exe'), 'test marker');
+  try {
+    await fs.access(transcriptionMarker);
+  } catch {
+    await fs.mkdir(path.dirname(transcriptionMarker), { recursive: true });
+    await fs.writeFile(transcriptionMarker, 'test marker');
+    createdTranscriptionMarker = true;
+  }
 
   const operations = {
     discover: async () => {
