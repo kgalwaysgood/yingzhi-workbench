@@ -1,0 +1,33 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  source-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Fetch pinned MIT dependencies
+        shell: powershell
+        run: |
+          git clone https://github.com/zinan92/douyin-downloader-1.git vendor/douyin-downloader-1
+          git -C vendor/douyin-downloader-1 checkout --detach b51225e695a9b8fff6eeb8b8178a53306f304f3a
+          git clone https://github.com/ljb1020/video-batch-download.git vendor/video-batch-download
+          git -C vendor/video-batch-download checkout --detach be5e41cf7e95b3c3388790bcce91b8becb942ef1
+      - name: Install browser test dependency
+        shell: powershell
+        run: |
+          npm --prefix vendor/video-batch-download ci --no-audit --no-fund
+          $env:PLAYWRIGHT_BROWSERS_PATH = Join-Path $PWD 'app/runtime/playwright'
+          node vendor/video-batch-download/node_modules/playwright/cli.js install chromium
+      - name: Run source regression
+        shell: powershell
+        run: .\scripts\test-source.ps1 -WithBrowser

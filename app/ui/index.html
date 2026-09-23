@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="workbench-token" content="__CSRF_TOKEN__">
+  <title>影知工坊 | 本地知识工作台</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">影</span><span>影知工坊<small>LOCAL KNOWLEDGE STUDIO</small></span></div>
+    <div class="top-actions"><span class="top-label">数据只留本机</span><button class="text-button" id="refreshButton" type="button">刷新状态 ↗</button></div>
+  </header>
+
+  <main class="shell" id="appShell">
+    <aside class="rail" aria-label="操作阶段">
+      <p class="eyebrow">YOUR WORKFLOW</p>
+      <h2>一次只做一步，<br>每一步都有据可查。</h2>
+      <nav class="stage-nav" aria-label="工作流程">
+        <a href="#/source" data-route="source"><span>01</span>输入学习目标</a>
+        <a href="#/creators" data-route="creators"><span>02</span>选择博主</a>
+        <a href="#/works" data-route="works"><span>03</span>挑选作品</a>
+        <a href="#/transcripts" data-route="transcripts"><span>04</span>核对文字稿</a>
+        <a href="#/knowledge" data-route="knowledge"><span>05</span>审核知识</a>
+      </nav>
+      <div class="local-state">
+        <p class="eyebrow">本地环境</p>
+        <div id="readiness"></div>
+        <button class="quiet-button" id="installModelButton" type="button" hidden>安装本地总结模型</button>
+        <button class="quiet-button" id="loginButton" type="button">登录 / 更新抖音</button>
+        <p class="storage-path" id="storagePath"></p>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <div class="screen-heading"><p class="eyebrow" id="screenProgress">STEP 01 / 05</p><span id="screenContext">选择一种开始方式</span></div>
+
+      <section class="screen" id="source" data-screen="source">
+        <div class="intro">
+          <p class="eyebrow">CURATE, DON'T COLLECT BLINDLY</p>
+          <h1>让值得学习的内容，<br><em>沉淀为你的知识。</em></h1>
+          <p>输入学习主题，或直接粘贴博主链接。每步完成后再进入下一屏，不自动下载或总结。</p>
+        </div>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">01</span><div><p class="eyebrow">START WITH A CREATOR</p><h2>已有博主链接</h2></div></div>
+          <p class="stage-note">支持完整主页链接或带链接的分享文案；单条视频链接不会被误认为博主主页。</p>
+          <form id="directForm" class="input-row"><label class="sr-only" for="profileInput">博主主页链接或分享文案</label><input id="profileInput" placeholder="https://www.douyin.com/user/... 或粘贴分享文案" required><button id="prepareManualButton" class="primary-button" type="submit">列出作品 <span>→</span></button></form>
+        </div>
+        <div class="route-divider">或者按学习主题发现博主</div>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">AI</span><div><p class="eyebrow">FIND THE RIGHT VOICES</p><h2>按主题找候选博主</h2></div></div>
+          <p class="stage-note">根据抖音搜索结果初筛；推荐不代表内容已核实，下一屏由你选择。</p>
+          <form id="discoverForm" class="input-row">
+            <label class="sr-only" for="topicInput">想学习的主题</label>
+            <input id="topicInput" maxlength="160" placeholder="例如：ERP订单到交付，MES工单如何流转？" required>
+            <button class="secondary-button" type="submit">寻找博主</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="screen" id="creators" data-screen="creators" hidden>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">02</span><div><p class="eyebrow">CHOOSE THE SOURCE</p><h2>选择要研究的博主</h2></div></div>
+          <p class="stage-note">先看推荐理由与主页，核对后再勾选。此处不会下载视频。</p>
+          <div class="empty-state" id="creatorEmpty">还没有候选博主。请返回输入主题。</div>
+          <div id="creatorList" class="creator-list"></div>
+          <div class="action-row"><button class="text-button" type="button" data-back="source">← 返回输入</button><span id="creatorCount" class="selection-hint">尚未选择博主</span><button id="prepareButton" class="primary-button" type="button" disabled>列出所选作品 <span>→</span></button></div>
+        </div>
+      </section>
+
+      <section class="screen" id="works" data-screen="works" hidden>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">03</span><div><p class="eyebrow">CHOOSE WHAT MATTERS</p><h2>挑选要下载的作品</h2></div></div>
+          <p class="stage-note">先看标题和来源，勾选真正想看的视频。不会自动下载全部作品。</p>
+          <div class="list-toolbar"><span id="worksCount">尚未列出作品</span><label><input id="allWorks" type="checkbox"> 全选当前作品</label></div>
+          <div class="empty-state" id="worksEmpty">请先输入博主链接，或在候选博主中做选择。</div>
+          <div id="worksList" class="item-list"></div>
+          <div class="action-row"><button id="worksBackButton" class="text-button" type="button">← 返回上一屏</button><span id="workSelection" class="selection-hint">请选择作品</span><button id="downloadButton" class="primary-button" type="button" disabled>确认下载并转写 <span>→</span></button></div>
+        </div>
+      </section>
+
+      <section class="screen" id="transcripts" data-screen="transcripts" hidden>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">04</span><div><p class="eyebrow">REVIEW BEFORE SUMMARIZING</p><h2>核对文字稿</h2></div></div>
+          <p class="stage-note">这里只显示最近一次下载批次。先核对原文，再选择要交给本地模型提炼的视频。</p>
+          <div class="list-toolbar"><span id="transcriptCount">尚无转写结果</span><label><input id="allTranscripts" type="checkbox"> 全选已转写</label></div>
+          <div class="empty-state" id="transcriptsEmpty">下载并转写后，逐条状态会出现在这里。</div>
+          <div id="transcriptList" class="item-list"></div>
+          <div class="action-row"><button class="text-button" type="button" data-back="works">← 返回选片</button><span id="transcriptSelection" class="selection-hint">请选择要提炼的文字稿</span><button id="summarizeButton" class="primary-button" type="button" disabled>确认生成知识草稿 <span>→</span></button></div>
+        </div>
+      </section>
+
+      <section class="screen" id="knowledge" data-screen="knowledge" hidden>
+        <div class="stage-card">
+          <div class="section-heading"><span class="step-number">05</span><div><p class="eyebrow">KEEP THE SOURCE VISIBLE</p><h2>审核并带走知识</h2></div></div>
+          <p class="stage-note">逐条对照原文引用。机器内容始终为待人工审核草稿，不自动进入正式知识库。</p>
+          <div class="empty-state" id="knowledgeEmpty">知识草稿生成后，可在这里对照原文并下载 Markdown。</div>
+          <div id="knowledgeList" class="item-list"></div>
+          <div class="action-row"><button class="text-button" type="button" data-back="transcripts">← 返回文字稿</button><span class="selection-hint">请逐条核对来源与结论</span></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="inspector" id="inspector" hidden>
+      <div class="inspector-heading"><span class="inspector-dot"></span><span>内容核查台</span></div>
+      <div id="inspectorContent" class="inspector-body"><p class="inspector-placeholder">选择一条已转写视频或知识草稿，原始文字与提炼结果会在这里并排核对。</p></div>
+    </aside>
+  </main>
+
+  <section class="task-panel" id="taskPanel" hidden aria-live="polite">
+    <div class="task-top"><strong id="taskTitle">任务处理中</strong><span id="taskStatus">进行中</span></div>
+    <p id="taskMessage">请稍候。较长视频的本地转写可能需要一段时间。</p>
+    <pre id="taskLogs"></pre>
+  </section>
+</body>
+</html>

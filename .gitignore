@@ -1,0 +1,55 @@
+# Local runtime and generated assets
+runtime/
+vendor/
+data/
+private/
+cache/
+tmp/
+logs/
+models/
+
+# Native build outputs
+app/runtime/
+app/desktop/dist/
+app/desktop/build/
+app/desktop/current-build.txt
+app/desktop/__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Credentials and machine-local configuration
+.env
+.env.*
+!.env.example
+config.private.yml
+cookies*.json
+*storage-state*.json
+*storage.state*.json
+*.token
+*.secret
+
+# Downloaded or generated media and knowledge results
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.m4a
+*.srt
+*.vtt
+current-batch-*
+订单流转_专题知识.md
+
+# Logs, reports and local evidence
+*.log
+delivery-manifest.json
+UX-regression-*.md
+CRUD-regression-*.md
+*-evidence-*/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

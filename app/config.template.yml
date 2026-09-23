@@ -1,0 +1,69 @@
+link: []
+path: data/downloads
+
+music: false
+cover: true
+avatar: true
+json: true
+
+start_time: ""
+end_time: ""
+folderstyle: true
+
+mode:
+  - post
+
+number:
+  post: 3
+  like: 0
+  allmix: 0
+  mix: 0
+  music: 0
+  collect: 0
+  collectmix: 0
+
+increase:
+  post: true
+  like: false
+  allmix: false
+  mix: false
+  music: false
+
+thread: 2
+retry_times: 3
+proxy: ""
+database: true
+database_path: data/douyin_knowledge.db
+
+progress:
+  quiet_logs: true
+
+transcript:
+  enabled: true
+  provider: local
+  local_model: tiny
+  language_hint: zh
+  output_dir: data/knowledge/transcripts
+  response_formats:
+    - txt
+    - json
+  api_key_env: OPENAI_API_KEY
+  api_key: ""
+
+archive:
+  enabled: true
+  output_dir: data/knowledge/markdown
+  raw: false
+
+analysis:
+  enabled: true
+  output_dir: data/knowledge/analysis
+
+browser_fallback:
+  enabled: true
+  headless: false
+  max_scrolls: 120
+  idle_rounds: 8
+  wait_timeout_seconds: 600
+
+cookies: auto
