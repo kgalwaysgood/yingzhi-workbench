@@ -5,7 +5,7 @@ import tkinter as tk
 import unittest
 from unittest import mock
 
-from app import WorkbenchApp
+from app import LIST_ROW_HEIGHT, LIST_VISIBLE_ROWS, WorkbenchApp
 
 
 class FakeClient:
@@ -159,8 +159,10 @@ class NativeWindowTest(unittest.TestCase):
                               and any(isinstance(item, tk.Canvas) for item in child.winfo_children()))
             canvas = next(child for child in list_frame.winfo_children() if isinstance(child, tk.Canvas))
             inner = canvas.nametowidget(canvas.itemcget(canvas.find_all()[0], "window"))
-            row = next(child for child in inner.winfo_children() if isinstance(child, tk.Frame))
-            self.assertGreaterEqual(canvas.winfo_height() // row.winfo_reqheight(), 10)
+            rows = [child for child in inner.winfo_children() if isinstance(child, tk.Frame)]
+            self.assertGreaterEqual(int(canvas.cget("height")), LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT)
+            self.assertEqual([row.sequence_number for row in rows[:LIST_VISIBLE_ROWS]],
+                             list(range(1, LIST_VISIBLE_ROWS + 1)))
             app.work_clear.invoke()
             app.update_idletasks()
             self.assertFalse(app.selected_works)

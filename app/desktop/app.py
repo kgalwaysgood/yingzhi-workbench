@@ -22,6 +22,8 @@ MUTED = "#64746d"
 ACCENT = "#246454"
 WHITE = "#ffffff"
 STEP_HINTS = ("从一个学习目标开始", "找到值得关注的讲解者", "只处理真正需要的内容", "先校对，再提炼", "把经验沉淀为自己的知识")
+LIST_VISIBLE_ROWS = 10
+LIST_ROW_HEIGHT = 46
 
 
 class WorkbenchApp(tk.Tk):
@@ -443,7 +445,8 @@ class WorkbenchApp(tk.Tk):
     def _list(self):
         outer = tk.Frame(self.content, bg=WHITE)
         outer.pack(fill="both", expand=True, pady=(2, 6))
-        canvas = tk.Canvas(outer, bg=WHITE, highlightthickness=0)
+        canvas = tk.Canvas(outer, bg=WHITE, highlightthickness=0,
+                           height=LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT)
         self.list_canvas = canvas
         scrollbar = ttk.Scrollbar(outer, orient="vertical", command=canvas.yview)
         body = tk.Frame(canvas, bg=WHITE)
