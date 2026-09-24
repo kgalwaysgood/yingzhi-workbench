@@ -27,7 +27,7 @@ class DesktopExperienceTest(unittest.TestCase):
             self.app.update()
             start.assert_not_called()
             dialog.assert_not_called()
-            self.assertTrue(self.app.verify_button.winfo_ismapped())
+            self.assertEqual(self.app.verify_button.winfo_manager(), "pack")
             self.assertIn("不会自动", self.app.notice.get())
 
     def test_interactive_retry_requires_confirmation_and_does_not_change_normal_payload(self):
@@ -88,11 +88,11 @@ class DesktopExperienceTest(unittest.TestCase):
         app.latest_job = {"kind": "login", "status": "running", "awaitingConfirmation": False}
         app._auth_controls()
         app.update()
-        self.assertFalse(app.login_save_button.winfo_ismapped())
+        self.assertEqual(app.login_save_button.winfo_manager(), "")
         app.latest_job["awaitingConfirmation"] = True
         app._auth_controls()
         app.update()
-        self.assertTrue(app.login_save_button.winfo_ismapped())
+        self.assertEqual(app.login_save_button.winfo_manager(), "pack")
 
     def test_poll_failure_keeps_job_busy_and_schedules_recovery(self):
         app = self.app
@@ -160,7 +160,11 @@ class DesktopExperienceTest(unittest.TestCase):
             {"id": "knowledge:2", "kind": "knowledge", "title": "交付闭环", "reviewStatus": "reviewed",
              "updatedAt": "2026-09-23 12:10", "revision": 1},
         ]
-        with mock.patch.object(self.app.client, "get_json", create=True, return_value={"items": items}):
+        def run_now(operation, done):
+            done(operation())
+
+        with mock.patch.object(self.app, "_async", run_now), \
+                mock.patch.object(self.app.client, "get_json", create=True, return_value={"items": items}):
             self.app._open_library()
             self.app.update()
         popup = next(w for w in self.app.winfo_children() if isinstance(w, tk.Toplevel))
@@ -200,7 +204,7 @@ class DesktopExperienceTest(unittest.TestCase):
             self.assertGreaterEqual(button.winfo_width(), button.winfo_reqwidth())
             toolbar = button.master
             for child in toolbar.winfo_children():
-                self.assertTrue(child.winfo_ismapped())
+                self.assertEqual(child.winfo_manager(), "pack")
                 self.assertLessEqual(child.winfo_x() + child.winfo_width(), toolbar.winfo_width())
 
     def test_source_modes_preserve_inputs_and_show_one_entry_path(self):
